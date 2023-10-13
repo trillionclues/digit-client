@@ -5,7 +5,7 @@ import {BsArrowRight} from 'react-icons/bs'
 
 const MoreProducts = () => {
   return (
-    <div className="flex md:flex-row flex-col justify-between items-center" style={{ marginTop: '-50px', position: 'absolute', zIndex: 1 }}>
+    <div className="flex md:flex-row flex-col justify-between items-center md:relative md:-mt-[150px]" style={{ zIndex: 1 }}>
     <div className="flex-1 pr-8" style={{ flex: '60%' }}>
     <Image
       src="/images/floor-walking.jpg"
@@ -36,7 +36,7 @@ const MoreProducts = () => {
       </aside>
 
       
-      <div className="bg-[#F4DFB6]" style={{ position: 'absolute', height: '30%', width: '40%', marginTop: '200px'}}>
+      <div className="bg-[#F4DFB6] md:absolute" style={{height: '30%', width: '40%', marginTop: '200px'}}>
         <div className="flex flex-row justify-center items-center h-full gap-5">
           <div className='flex flex-row'>
             <Image 

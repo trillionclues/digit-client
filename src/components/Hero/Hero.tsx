@@ -11,7 +11,7 @@ const Hero = () => {
   
   return (
     <>
-    <div className="flex md:flex-row flex-col justify-between min-h-full mx-auto md:px-28 px-10">
+    <div className="flex md:flex-row flex-col justify-between mx-auto md:px-28 px-10">
     <div className="flex-1 pr-5 py-12 px-8">
         <h1 className='font-bold text-3xl leading-snug py-2 tracking-wide' style={{ wordSpacing: '0.3em' }}>Wingrove <br /> Storage Desk, <br /> French Oak</h1>
         
