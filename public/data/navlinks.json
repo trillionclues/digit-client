@@ -1,0 +1,32 @@
+[
+    {
+        "index": 1,
+        "title": "Home",
+        "url": "/"
+    },
+    {
+        "index": 2,
+        "title": "Page",
+        "url": "/page"
+    },
+    {
+        "index": 3,
+        "title": "Shop",
+        "url": "/shop"
+    },
+    {
+        "index": 4,
+        "title": "Store",
+        "url": "/products"
+    },
+    {
+        "index": 5,
+        "title": "Blog",
+        "url": "/blog"
+    },
+    {
+        "index": 6,
+        "title": "Contact",
+        "url": "/contact"
+    }
+]

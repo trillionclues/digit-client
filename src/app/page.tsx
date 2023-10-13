@@ -1,5 +1,6 @@
-import Image from 'next/image'
-import Link from 'next/link'
+import Hero from '@/components/Hero/Hero'
+import CustomButton from '@/components/customButton'
+
 
 {/* <Image
 src="/vercel.svg"
@@ -11,9 +12,13 @@ priority
 /> */}
 
 export default function Home() {
+  const handleClick = () => {
+
+  }
+
   return (
-    <main className='flex flex-col justify-between'>
-      Hello
+    <main className='container mx-auto md:px-28 px-10'>
+      <Hero/>
     </main>
   )
 }

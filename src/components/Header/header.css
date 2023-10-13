@@ -41,3 +41,25 @@ a {
 .relative {
     background-color: var(--color-febd69);
 }
+
+/* logo */
+.logo {
+    position: relative;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    display: inline-block;
+    padding-bottom: 5px;
+  }
+  
+  /* Add the hand-drawn underline */
+  .logo::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #000;
+    transform: scaleY(0.3);
+    transform-origin: 0 100%;
+  }
