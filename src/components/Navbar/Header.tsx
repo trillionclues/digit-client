@@ -5,7 +5,7 @@
 import Link from 'next/link';
 import React, { useState } from 'react';
 import './header.css';
-import { AiOutlineUser, AiOutlineSearch, AiOutlineMenu  } from 'react-icons/ai';
+import { AiOutlineUser, AiOutlineSearch, AiOutlineMenu, AiOutlineClose  } from 'react-icons/ai';
 import Navlinks from '../../../public/data/navlinks.json';
 import UserCart from '../Cart/UserCart';
 
@@ -71,7 +71,7 @@ const Header:React.FC = () => {
               
               {/* toggle mobile menu */}
               <button className="md:hidden text-2xl cursor-pointer ml-3" onClick={toggleMobileMenu}>
-                <AiOutlineMenu />
+                {isMobileMenuOpen ? <AiOutlineClose/> : <AiOutlineMenu />}
               </button>
             </div>
           </div>
