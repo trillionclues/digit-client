@@ -1,15 +1,24 @@
 "use client"
 
+"use client"
+
 import Link from 'next/link';
 import React, { useState } from 'react';
 import './header.css';
+import { AiOutlineUser, AiOutlineSearch, AiOutlineMenu  } from 'react-icons/ai';
 import Navlinks from '../../../public/data/navlinks.json';
-import { AiOutlineUser, AiOutlineShopping, AiOutlineSearch } from 'react-icons/ai';
 import UserCart from '../Cart/UserCart';
 
-const Header = () => {
+
+const Header:React.FC = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeLink, setActiveLink] = useState('');
   const [cartCount, setCartCount] = useState(2);
+
+
+  const toggleMobileMenu  = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
 
   return (
     <>
@@ -33,7 +42,9 @@ const Header = () => {
                 </svg>
               </div>
             </div>
-            <div className='flex flex-row justify-center align-center gap-5'>
+
+
+            <div className='hidden md:flex flex-row justify-center align-center gap-5'>
               {Navlinks.map((link, index) => {
                 const isActive = link.url === activeLink;
                 return (
@@ -57,9 +68,29 @@ const Header = () => {
                 <AiOutlineUser />
               </div>
               <UserCart count={cartCount} />
+              
+              {/* toggle mobile menu */}
+              <button className="md:hidden text-2xl cursor-pointer ml-3" onClick={toggleMobileMenu}>
+                <AiOutlineMenu />
+              </button>
             </div>
           </div>
         </div>
+
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white">
+            {Navlinks.map((link, idx) => (
+              <div key={link.index} className={`font-normal cursor-pointer pt-5 pb-2 px-1`}
+              onClick={() => {
+                setActiveLink(link.url)
+                toggleMobileMenu();
+              }}
+              >
+                <Link href={link.url}>{link.title}</Link>
+              </div>
+            ))}
+          </div>
+        )}
       </header>
     </>
   );

@@ -1,7 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
+import mobileMenuReducer from "@/features/toggleSlice";
 
 const store = configureStore({
-    reducer: {}
+    reducer: {
+        mobileMenu: mobileMenuReducer,
+    }
 })
 
 export default store

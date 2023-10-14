@@ -16,7 +16,7 @@ const MoreProducts = () => {
     />
     </div>
   
-    <div className="flex-1"  style={{ flex: '40%', display: 'flex', flexDirection: 'column' }}>
+    <div className="flex-1"  style={{ flex: '40%', display: 'flex', flexDirection: 'column',  zIndex: 1 }}>
       <div style={{  marginTop: '-150px', marginLeft:'300px' }}>
     <Image
       src='/images/image-outdoor.jpg'
