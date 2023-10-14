@@ -8,6 +8,7 @@ import './header.css';
 import { AiOutlineUser, AiOutlineSearch, AiOutlineMenu, AiOutlineClose  } from 'react-icons/ai';
 import Navlinks from '../../../public/data/navlinks.json';
 import UserCart from '../Cart/UserCart';
+import NavLinks from './NavLinks';
 
 
 const Header:React.FC = () => {
@@ -22,8 +23,8 @@ const Header:React.FC = () => {
 
   return (
     <>
-      <header className="bg-white mb-3">
-        <div className="container mx-auto px-10 md:px-28">
+      <header className="bg-white mb-3 pt-3 md:pt-0">
+        <div className="container mx-auto px-5 md:px-28">
           <div className="flex flex-row justify-between items-center pb-3">
             <div className="logo-container pt-5">
               <Link href='/'>
@@ -45,17 +46,18 @@ const Header:React.FC = () => {
 
 
             <div className='hidden md:flex flex-row justify-center align-center gap-5'>
-              {Navlinks.map((link, index) => {
+              {Navlinks.map((link) => {
                 const isActive = link.url === activeLink;
                 return (
                   <div
-                    key={index}
+                    key={link.id}
                     className={`font-normal cursor-pointer pt-5 pb-2 px-1 ${
                       isActive ? 'bg-[#F4DFB6]' : 'hover:bg-[#F4DFB6]'
                     }`}
                     onClick={() => setActiveLink(link.url)}
                   >
-                    <Link href={link.url}>{link.title}</Link>
+                    <NavLinks navlink={link}/>
+                    {/* <Link href={link.url}>{link.title}</Link> */}
                   </div>
                 );
               })}
@@ -86,9 +88,9 @@ const Header:React.FC = () => {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white">
-            {Navlinks.map((link, idx) => (
-              <div key={link.index} className={`font-normal cursor-pointer pt-5 pb-2 px-1`}
+          <div className="md:hidden bg-white shadow-md px-8 z-50 h-full">
+            {Navlinks.map((link) => (
+              <div key={link.id} className={`font-normal cursor-pointer pt-5 pb-2 px-1 flex flex-col justify-between items-center gap-5`}
               onClick={() => {
                 setActiveLink(link.url)
                 toggleMobileMenu();

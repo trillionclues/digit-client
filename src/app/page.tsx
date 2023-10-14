@@ -7,9 +7,6 @@ import MobileMenuOverlay from '@/components/MobileMenu/MobileMenuOverlay'
 {/* className="dark:invert"
 priority
 /> */}
-interface RootState {
-  mobileToggle: boolean;
-}
 
 export default function Home() {
   return (

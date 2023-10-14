@@ -1,31 +1,31 @@
 [
     {
-        "index": 1,
+        "id": 1,
         "title": "Home",
         "url": "/"
     },
     {
-        "index": 2,
+        "id": 2,
         "title": "Page",
         "url": "/page"
     },
     {
-        "index": 3,
+        "id": 3,
         "title": "Shop",
         "url": "/shop"
     },
     {
-        "index": 4,
+        "id": 4,
         "title": "Store",
         "url": "/products"
     },
     {
-        "index": 5,
+        "id": 5,
         "title": "Blog",
         "url": "/blog"
     },
     {
-        "index": 6,
+        "id": 6,
         "title": "Contact",
         "url": "/contact"
     }

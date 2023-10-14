@@ -1,17 +1,16 @@
 // mobileMenuSlice.js
 
 import { createSlice } from "@reduxjs/toolkit";
+import { RootState } from "../store/store";
 
 const mobileMenuSlice = createSlice({
-  name: "mobileMenu",
+  name: "toggle",
   initialState: false, // Initial state (e.g., mobile menu is closed)
   reducers: {
-    openMenu: (state) => true,
-    closeMenu: (state) => false,
     toggleMenu: (state) => !state,
   },
 });
 
-export const { openMenu, closeMenu, toggleMenu } = mobileMenuSlice.actions;
+export const { toggleMenu } = mobileMenuSlice.actions;
 
 export default mobileMenuSlice.reducer;
