@@ -62,12 +62,20 @@ const Header:React.FC = () => {
             </div>
             <div className="flex flex-row justify-between items-center gap-3 pt-5">
               <div className='text-xl cursor-pointer'>
+                <Link href='/search'>
                 <AiOutlineSearch />
+                </Link>
               </div>
               <div className="text-xl cursor-pointer">
+                <Link href='/profile'>
                 <AiOutlineUser />
+                </Link>
               </div>
-              <UserCart count={cartCount} />
+              <div className="cursor-pointer">
+                <Link href='/cart'>
+                <UserCart count={cartCount} />
+                </Link>
+              </div>
               
               {/* toggle mobile menu */}
               <button className="md:hidden text-2xl cursor-pointer ml-3" onClick={toggleMobileMenu}>
