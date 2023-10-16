@@ -46,8 +46,8 @@ const Login = () => {
         // Use the result if needed
         const token = resultAction.payload;
         localStorage.setItem("token", token);
-        alert("welcome back");
-        router.push("/dashboard");
+        // alert("welcome back");
+        router.push("/");
       } else {
         throw new Error(response.message);
       }
