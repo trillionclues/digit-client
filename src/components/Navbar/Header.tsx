@@ -31,7 +31,7 @@ const Header: React.FC = () => {
           <div className="flex flex-row justify-between items-center pb-3">
             <div className="logo-container pt-5">
               <Link href="/">
-                <h2 className="font-bold">SOFANA</h2>
+                <h2 className="font-bold text-[#072F5F]">SOFANA</h2>
               </Link>
               <div className="brush-underline">
                 <svg
@@ -56,7 +56,7 @@ const Header: React.FC = () => {
                 return (
                   <div
                     key={link.id}
-                    className={`font-normal cursor-pointer pt-5 pb-2 px-1 ${
+                    className={`font-normal text-[#072F5F] cursor-pointer pt-5 pb-2 px-1 ${
                       isActive ? "bg-[#F4DFB6]" : "hover:bg-[#F4DFB6]"
                     }`}
                     onClick={() => setActiveLink(link.url)}
