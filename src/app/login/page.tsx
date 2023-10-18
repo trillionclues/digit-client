@@ -107,7 +107,9 @@ const Login = () => {
     <div className="flex flex-col items-center justify-center h-screen">
       <div>
         <Link href="/">
-          <h2 className="font-bold text-[#072F5F] text-2xl">SOFANA</h2>
+          <h2 className="font-bold text-[#072F5F] text-2xl text-center">
+            SOFANA
+          </h2>
         </Link>
         <div className="brush-underline pl-5">
           <svg
@@ -164,8 +166,11 @@ const Login = () => {
             className="block text-sm font-medium text-gray-600 pb-1"
           >
             Password
+            <div className="text-red-500 text-sm py-2">
+              {formErrors.password}
+            </div>
           </label>
-          <div className="text-red-500 text-sm py-2">{formErrors.password}</div>
+          {/* <div className="text-red-500 text-sm py-2">{formErrors.password}</div> */}
           <input
             type={passwordVisible ? "text" : "password"}
             name="password"
@@ -175,17 +180,19 @@ const Login = () => {
             onChange={handleChange}
             required
           />
-          <button
-            type="button"
-            className="absolute top-0 right-0 mt-[73px] mr-4"
-            onClick={togglePasswordVisibility}
-          >
-            {passwordVisible ? (
-              <BsEyeSlash className="text-xl" />
-            ) : (
-              <BsEye className="text-xl" />
-            )}
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              className="absolute -top-[90px] md:-top-[105px] right-0 mt-[55px] md:mt-[73px] mr-4"
+              onClick={togglePasswordVisibility}
+            >
+              {passwordVisible ? (
+                <BsEyeSlash className="text-xl" />
+              ) : (
+                <BsEye className="text-xl" />
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="mb-4 flex justify-between">

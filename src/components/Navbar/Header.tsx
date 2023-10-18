@@ -29,7 +29,7 @@ const Header: React.FC = () => {
       <header className="bg-white mb-3 pt-3 md:pt-0">
         <div className="container mx-auto px-5 md:px-28">
           <div className="flex flex-row justify-between items-center pb-3">
-            <div className="logo-container pt-5">
+            <div className="logo-container pt-5 flex-row items-center justofy-center">
               <Link href="/">
                 <h2 className="font-bold text-[#072F5F]">SOFANA</h2>
               </Link>
