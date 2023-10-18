@@ -105,7 +105,7 @@ const Login = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <div>
+      <div className="flex flex-col text-center justify-center items-center">
         <Link href="/">
           <h2 className="font-bold text-[#072F5F] text-2xl text-center">
             SOFANA
