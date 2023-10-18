@@ -111,7 +111,7 @@ const Login = () => {
             SOFANA
           </h2>
         </Link>
-        <div className="brush-underline pl-5">
+        <div className="brush-underline pl-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 100 10"
