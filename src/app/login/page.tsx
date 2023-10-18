@@ -9,18 +9,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { authAsync } from "@/redux/features/authSlice";
 import { handleLogin, iLogin } from "./login.service";
 import { AppDispatch, RootState } from "@/redux/store/store";
+import AuthForm from "@/components/reusables/authForm";
+import { z } from "zod";
 
 const Login = () => {
   const isLoading = useSelector(
     (state: RootState) => state.authentication.isLoading
   );
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formErrors, setFormErrors] = useState({ email: "", password: "" });
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isLoadingUser, setIsLoadingUser] = useState(isLoading);
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   let token: string;
+
+  const validationSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+  });
 
   // handle onchange
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,10 +53,10 @@ const Login = () => {
       password: formData?.password || "",
     };
 
-    if (!data.email || !data.password) {
-      alert("Please enter all fields");
-      return;
-    }
+    // if (!data.email || !data.password) {
+    //   alert("Please enter all fields");
+    //   return;
+    // }
 
     // set remember me data
     if (rememberMe) {
@@ -57,8 +65,9 @@ const Login = () => {
     }
 
     try {
+      setIsLoadingUser(true);
+      validationSchema.parse(formData);
       const response = await handleLogin(data, token);
-      // setIsLoadingUser(true);
       const resultAction = await dispatch(authAsync(response.token));
 
       if (authAsync.fulfilled.match(resultAction)) {
@@ -70,6 +79,16 @@ const Login = () => {
       }
     } catch (error) {
       console.log("Login failed", error);
+      if (error instanceof z.ZodError) {
+        setFormErrors({
+          email:
+            error.issues.find((issue) => issue.path[0] === "email")?.message ||
+            "",
+          password:
+            error.issues.find((issue) => issue.path[0] === "password")
+              ?.message || "",
+        });
+      }
     } finally {
       setIsLoadingUser(false);
     }
@@ -106,6 +125,9 @@ const Login = () => {
           </svg>
         </div>
       </div>
+
+      {/* dynamic starts here */}
+      {/* <AuthForm formConfig={formConfig.login} onSubmit={handleLogin}/> */}
       <h1 className="font-bold text-lg mt-5 text-[#072F5F]">
         Sign In to your SOFANA
       </h1>
@@ -113,6 +135,7 @@ const Login = () => {
         Enter your details to sign in to your account
       </p>
       <form
+        method="POST"
         onSubmit={handleFormLogin}
         className="w-full max-w-sm md:max-w-md mt-8 bg-white rounded
     px-6 pt-6 pb-8 mb-4 shadow-md"
@@ -124,11 +147,12 @@ const Login = () => {
           >
             Email
           </label>
+          <div className="text-red-500 text-sm py-2">{formErrors.email}</div>
           <input
             type="text"
             name="email"
             className="border text-sm border-grey-light w-full p-3 rounded-full mb-4"
-            placeholder="Email"
+            placeholder="Enter your email"
             value={formData?.email}
             onChange={handleChange}
             required
@@ -141,18 +165,19 @@ const Login = () => {
           >
             Password
           </label>
+          <div className="text-red-500 text-sm py-2">{formErrors.password}</div>
           <input
             type={passwordVisible ? "text" : "password"}
             name="password"
             className="border text-sm border-grey-light w-full p-3 rounded-full pr-12"
-            placeholder="Password"
+            placeholder="Enter your password"
             value={formData?.password}
             onChange={handleChange}
             required
           />
           <button
             type="button"
-            className="absolute top-0 right-0 mt-[38px] mr-4"
+            className="absolute top-0 right-0 mt-[73px] mr-4"
             onClick={togglePasswordVisibility}
           >
             {passwordVisible ? (
@@ -188,14 +213,14 @@ const Login = () => {
         <button
           type="submit"
           className={`${
-            isLoading ? "bg-blue hover:bg-indigo" : "bg-[#072F5F] hover:bg-teal"
-          } text-white text-sm font-bold py-3 w-full px-4 rounded-full focus:outline-none ${
-            isLoading ? "cursor-not-allowed" : "cursor-pointer"
-          }`}
-          disabled={isLoading}
+            isLoading
+              ? "bg-blue hover:bg-indigo cursor-not-allowed loading"
+              : "bg-[#072F5F] cursor-pointer hover:bg-teal"
+          } text-white text-sm font-bold py-3 w-full px-4 rounded-full focus:outline-none`}
+          disabled={isLoadingUser}
         >
-          {isLoading ? (
-            "Logging In..."
+          {isLoadingUser ? (
+            <div className="spinner mx-auto"></div>
           ) : (
             <div className="flex flex-row justify-center items-center gap-2">
               Sign In <FiArrowRight className="font-medium text-lg" />
@@ -203,6 +228,7 @@ const Login = () => {
           )}
         </button>
       </form>
+      {/* ends */}
       <p className="mt-4 text-[#072F5F] text-[16px]">
         Don't have an account? <Link href="/signup">Sign up</Link>
       </p>
