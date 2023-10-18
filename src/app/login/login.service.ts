@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseUrl = "https://digit-backend.onrender.com";
+import { baseUrl } from "@/constants/dbUrl";
 
 export interface iLogin {
   email: string;

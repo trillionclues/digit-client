@@ -86,7 +86,7 @@ const Header: React.FC = () => {
 
               {/* toggle mobile menu */}
               <button
-                className="md:hidden text-2xl cursor-pointer ml-3"
+                className="md:hidden text-2xl cursor-pointer ml-3 z-50"
                 onClick={toggleMobileMenu}
               >
                 {isMobileMenuOpen ? <AiOutlineClose /> : <AiOutlineMenu />}
@@ -95,22 +95,22 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-white shadow-md px-8 z-50 h-full">
-            {Navlinks.map((link) => (
-              <div
-                key={link.id}
-                className={`font-normal cursor-pointer pt-5 pb-2 px-1 flex flex-col justify-between items-center gap-5`}
-                onClick={() => {
-                  setActiveLink(link.url);
-                  toggleMobileMenu();
-                }}
-              >
-                <Link href={link.url}>{link.title}</Link>
-              </div>
-            ))}
-          </div>
-        )}
+        <div
+          className={`mobile-menu pt-20 z-50 ${isMobileMenuOpen ? "open" : ""}`}
+        >
+          {Navlinks.map((link) => (
+            <div
+              key={link.id}
+              className={`font-normal cursor-pointer pt-5 pb-2 px-1 flex flex-col justify-between items-center gap-5`}
+              onClick={() => {
+                setActiveLink(link.url);
+                toggleMobileMenu();
+              }}
+            >
+              <Link href={link.url}>{link.title}</Link>
+            </div>
+          ))}
+        </div>
       </header>
     </>
   );

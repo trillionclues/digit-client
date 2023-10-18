@@ -11,6 +11,7 @@ import { handleLogin, iLogin } from "./login.service";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import AuthForm from "@/components/reusables/authForm";
 import { z } from "zod";
+import LogoHeader from "@/components/reusables/LogoHeader";
 
 const Login = () => {
   const isLoading = useSelector(
@@ -104,38 +105,13 @@ const Login = () => {
   }, [rememberMe]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <div className="flex flex-col text-center justify-center items-center">
-        <Link href="/">
-          <h2 className="font-bold text-[#072F5F] text-2xl text-center">
-            SOFANA
-          </h2>
-        </Link>
-        <div className="brush-underline pl-10">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 100 10"
-            width="100%"
-            height="10"
-          >
-            <path
-              d="M0 0 C 20 10 40 10 60 0"
-              stroke="#000"
-              strokeWidth="2"
-              fill="none"
-            />
-          </svg>
-        </div>
-      </div>
+    <div className="flex flex-col items-center justify-center h-full mt-8">
+      <LogoHeader
+        headerText="Sign In to your SOFANA"
+        paraText="Enter your details to sign in to your account"
+        className="text-sm font-medium text-[#072F5F]"
+      />
 
-      {/* dynamic starts here */}
-      {/* <AuthForm formConfig={formConfig.login} onSubmit={handleLogin}/> */}
-      <h1 className="font-bold text-lg mt-5 text-[#072F5F]">
-        Sign In to your SOFANA
-      </h1>
-      <p className="text-sm font-medium text-[#072F5F]">
-        Enter your details to sign in to your account
-      </p>
       <form
         method="POST"
         onSubmit={handleFormLogin}
@@ -217,6 +193,8 @@ const Login = () => {
             Forgot password?
           </Link>
         </div>
+
+        <hr className="flex-grow w-full py-2 w-full" />
         <button
           type="submit"
           className={`${
@@ -237,7 +215,10 @@ const Login = () => {
       </form>
       {/* ends */}
       <p className="mt-4 text-[#072F5F] text-[16px]">
-        Don't have an account? <Link href="/signup">Sign up</Link>
+        Don't have an account?{" "}
+        <Link href="/signup" className="text-blue-500">
+          Sign up
+        </Link>
       </p>
     </div>
   );
