@@ -29,17 +29,11 @@ const page = () => {
     setNewPassword(e.target.value);
   };
 
-  //   get toke from url params
-
-  // let token = "";
-  // searchParams[1].forEach((param) => {
-  //     if (param.startsWith('token=')) {
-  //         token = param.split('=')[1];
-  //         }
-  //         });
-
   //   retrive token from query params
+  // const token = searchParams.get("token");
+  // console.log(token);
   const token = searchParams.get("token");
+  console.log(token);
   const handleChangePassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoadingSubmit(true);
