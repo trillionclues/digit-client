@@ -8,6 +8,7 @@ import { z } from "zod";
 import LogoHeader from "@/components/reusables/LogoHeader";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import { changePassword } from "@/redux/features/forgotPasswordSlice";
+import { TokenProps } from "@/types/TokenProps";
 
 const page = () => {
   const forgotPasswordState = useSelector(
@@ -15,6 +16,7 @@ const page = () => {
   );
   const { submitting, error } = forgotPasswordState;
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(submitting);
+  const [isValidToken, setIsValidToken] = useState(false);
   const [formError, setFormError] = useState<string | null>(error);
   const [newPassword, setNewPassword] = useState<string>("");
   const dispatch = useDispatch<AppDispatch>();
@@ -47,6 +49,11 @@ const page = () => {
           changePassword({ newPassword: newPassword, token: token })
         );
         // userPassword is the new password and userToken is the token received
+        if (resultAction.payload.success) {
+          router.push("/login"); // Password changed successfully
+        } else {
+          setFormError("Failed to change password.");
+        }
       } else {
         // cons
       }
@@ -63,13 +70,116 @@ const page = () => {
     }
   };
 
+  ////////////////////TOKEN VALIDITY ON SERVER
+  const checkTokenValidity = async (token: string) => {
+    try {
+      const response = await fetch(
+        `https://digit-backend.adaptable.app/api/user/reset-password/${token}`
+      );
+      const data = await response.json();
+      return data.valid;
+    } catch (error) {
+      console.error("Error checking token on the server:", error);
+      return false;
+    }
+  };
+
+  ////////////////////
+
+  //   check if token expired
+  const isTokenExpired = (token: TokenProps | null) => {
+    if (token) {
+      const expirationTime = new Date(token.passwordResetExpires).getTime();
+      const currentTime = new Date().getTime();
+      return expirationTime < currentTime;
+    }
+    return false;
+  };
+
+  //   check if the token is valid
+  const isTokenValid = async (token: TokenProps | null) => {
+    if (token) {
+      const { resetToken } = token;
+
+      // Web Platform API for encoding  JS string
+      const textEncoder = new TextEncoder();
+      const encodedData = textEncoder.encode(resetToken);
+
+      // Web Crypto API to calculate hash - returns Promise
+      const hashBuffer = await crypto.subtle.digest("SHA-256", encodedData);
+      const hashedToken = Array.from(new Uint8Array(hashBuffer))
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
+      // compare calculated hashedToken to  passwordResetToken
+      return hashedToken === token.passwordResetToken;
+    }
+    return false;
+  };
+
   useEffect(() => {
-    // If you want to check if the token is present or perform any other logic, you can do so here.
-    if (!token) {
-      // Handle the case where the token is not available in the URL.
-      // You can redirect the user to an error page or take other actions.
+    if (token) {
+      let tokenProps: TokenProps | null = null;
+
+      try {
+        // parse as TokenProps
+        tokenProps = JSON.parse(token);
+      } catch (error) {
+        // not a valid TokenProps
+        tokenProps = null;
+      }
+
+      if (tokenProps) {
+        // Token is a valid TokenProps
+        const expired = isTokenExpired(tokenProps);
+        const valid = isTokenValid(tokenProps);
+
+        if (expired || !valid) {
+          // Token is either expired or invalid
+          setIsValidToken(false);
+        } else {
+          // Token is valid
+          setIsValidToken(true);
+        }
+      } else {
+        // Token is not a valid TokenProps
+        setIsValidToken(false);
+      }
+    } else {
+      // Token is missing
+      setIsValidToken(false);
+    }
+
+    // Check token validity on the server
+    if (token) {
+      checkTokenValidity(token).then((valid) => {
+        if (!valid) {
+          setIsValidToken(false);
+        }
+      });
     }
   }, [token]);
+
+  if (!isValidToken) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full mt-8">
+        <LogoHeader
+          headerText="Something went wrong!"
+          paraText="Invalid or expired token. Please request a new link."
+          className="text-sm font-medium text-[#072F5F] text-center w-9/12 md:w-1/4"
+        />
+        <Link href="/forgot-password">
+          <button
+            type="submit"
+            className="bg-[#072F5F] cursor-pointer hover:bg-teal text-white text-sm font-bold py-3 mt-5 w-full px-4 rounded-full focus:outline-none"
+          >
+            <div className="flex flex-row justify-center items-center gap-2">
+              Forgot Password <FiArrowRight className="font-medium text-lg" />
+            </div>
+          </button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-full mt-8">
