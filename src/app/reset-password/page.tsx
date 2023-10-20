@@ -14,7 +14,7 @@ const page = () => {
   const forgotPasswordState = useSelector(
     (state: RootState) => state.forgotPassword
   );
-  const { submitting, error } = forgotPasswordState;
+  const { submitting, error, newUserPassword } = forgotPasswordState;
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(submitting);
   const [isValidToken, setIsValidToken] = useState(false);
   const [formError, setFormError] = useState<string | null>(error);
@@ -28,37 +28,34 @@ const page = () => {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewPassword(e.target.value);
+    const newPasswordValue = e.target.value;
+    setNewPassword(newPasswordValue);
   };
 
-  //   retrive token from query params
-  // const token = searchParams.get("token");
-  // console.log(token);
+  // get token from params
   const token = searchParams.get("token");
-  console.log(token);
+
   const handleChangePassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoadingSubmit(true);
-    setFormError(null);
+    setFormError(error ? error : null);
 
     try {
       const dataToValidate = { password: newPassword };
+      console.log("Data to Validate:", dataToValidate);
       validationSchema.parse(dataToValidate);
       if (token) {
         const resultAction = await dispatch(
           changePassword({ newPassword: newPassword, token: token })
         );
-        // userPassword is the new password and userToken is the token received
-        if (resultAction.payload.success) {
-          router.push("/login"); // Password changed successfully
-        } else {
-          setFormError("Failed to change password.");
+        // userPassword is the new password and userToken is token signed
+        if (changePassword.fulfilled.match(resultAction)) {
+          setNewPassword("");
+          router.push("/login");
         }
       } else {
-        // cons
+        throw Error("Invalid URL parameters");
       }
-
-      router.push("/");
     } catch (error) {
       console.log("Failed to change password", error);
       if (error instanceof z.ZodError) {
@@ -71,115 +68,89 @@ const page = () => {
   };
 
   ////////////////////TOKEN VALIDITY ON SERVER
-  const checkTokenValidity = async (token: string) => {
-    try {
-      const response = await fetch(
-        `https://digit-backend.adaptable.app/api/user/reset-password/${token}`
-      );
-      const data = await response.json();
-      return data.valid;
-    } catch (error) {
-      console.error("Error checking token on the server:", error);
-      return false;
-    }
-  };
-
-  ////////////////////
-
   //   check if token expired
-  const isTokenExpired = (token: TokenProps | null) => {
-    if (token) {
-      const expirationTime = new Date(token.passwordResetExpires).getTime();
-      const currentTime = new Date().getTime();
-      return expirationTime < currentTime;
-    }
-    return false;
-  };
+  // const isTokenExpired = (token: TokenProps | null) => {
+  //   if (token) {
+  //     const expirationTime = new Date(token.passwordResetExpires).getTime();
+  //     const currentTime = new Date().getTime();
+  //     return expirationTime < currentTime;
+  //   }
+  //   return false;
+  // };
 
-  //   check if the token is valid
-  const isTokenValid = async (token: TokenProps | null) => {
-    if (token) {
-      const { resetToken } = token;
+  // //   check if the token is valid
+  // const isTokenValid = async (token: TokenProps | null) => {
+  //   if (token) {
+  //     const { resetToken } = token;
 
-      // Web Platform API for encoding  JS string
-      const textEncoder = new TextEncoder();
-      const encodedData = textEncoder.encode(resetToken);
+  //     // Web Platform API for encoding  JS string
+  //     const textEncoder = new TextEncoder();
+  //     const encodedData = textEncoder.encode(resetToken);
 
-      // Web Crypto API to calculate hash - returns Promise
-      const hashBuffer = await crypto.subtle.digest("SHA-256", encodedData);
-      const hashedToken = Array.from(new Uint8Array(hashBuffer))
-        .map((byte) => byte.toString(16).padStart(2, "0"))
-        .join("");
-      // compare calculated hashedToken to  passwordResetToken
-      return hashedToken === token.passwordResetToken;
-    }
-    return false;
-  };
+  //     // Web Crypto API to calculate hash - returns Promise
+  //     const hashBuffer = await crypto.subtle.digest("SHA-256", encodedData);
+  //     const hashedToken = Array.from(new Uint8Array(hashBuffer))
+  //       .map((byte) => byte.toString(16).padStart(2, "0"))
+  //       .join("");
+  //     // compare calculated hashedToken to  passwordResetToken
+  //     return hashedToken === token.passwordResetToken;
+  //   }
+  //   return false;
+  // };
 
-  useEffect(() => {
-    if (token) {
-      let tokenProps: TokenProps | null = null;
+  // useEffect(() => {
+  //   if (token) {
+  //     let tokenProps: TokenProps | null = null;
+  //     // const tokenProps = token as unknown as TokenProps;
 
-      try {
-        // parse as TokenProps
-        tokenProps = JSON.parse(token);
-      } catch (error) {
-        // not a valid TokenProps
-        tokenProps = null;
-      }
+  //     try {
+  //       // parse as TokenProps
+  //       tokenProps = JSON.parse(token);
+  //     } catch (error) {
+  //       // not a valid TokenProps
+  //       tokenProps = null;
+  //     }
 
-      if (tokenProps) {
-        // Token is a valid TokenProps
-        const expired = isTokenExpired(tokenProps);
-        const valid = isTokenValid(tokenProps);
+  //     // if (tokenProps) {
+  //     //   // Token is a valid TokenProps
+  //     //   const expired = isTokenExpired(tokenProps);
+  //     //   const valid = isTokenValid(tokenProps);
 
-        if (expired || !valid) {
-          // Token is either expired or invalid
-          setIsValidToken(false);
-        } else {
-          // Token is valid
-          setIsValidToken(true);
-        }
-      } else {
-        // Token is not a valid TokenProps
-        setIsValidToken(false);
-      }
-    } else {
-      // Token is missing
-      setIsValidToken(false);
-    }
+  //     //   if (expired || !valid) {
+  //     //     // Token is either expired or invalid
+  //     //     setIsValidToken(false);
+  //     //   } else {
+  //     //     // Token is valid
+  //     //     setIsValidToken(true);
+  //     //   }
+  //     // } else {
+  //     //   // Token is not a valid TokenProps
+  //     //   setIsValidToken(false);
+  //     // }
 
-    // Check token validity on the server
-    if (token) {
-      checkTokenValidity(token).then((valid) => {
-        if (!valid) {
-          setIsValidToken(false);
-        }
-      });
-    }
-  }, [token]);
+  // }, [token]);
 
-  if (!isValidToken) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full mt-8">
-        <LogoHeader
-          headerText="Something went wrong!"
-          paraText="Invalid or expired token. Please request a new link."
-          className="text-sm font-medium text-[#072F5F] text-center w-9/12 md:w-1/4"
-        />
-        <Link href="/forgot-password">
-          <button
-            type="submit"
-            className="bg-[#072F5F] cursor-pointer hover:bg-teal text-white text-sm font-bold py-3 mt-5 w-full px-4 rounded-full focus:outline-none"
-          >
-            <div className="flex flex-row justify-center items-center gap-2">
-              Forgot Password <FiArrowRight className="font-medium text-lg" />
-            </div>
-          </button>
-        </Link>
-      </div>
-    );
-  }
+  // if (!isValidToken) {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center h-full mt-8">
+  //       <LogoHeader
+  //         headerText="Something went wrong!"
+  //         paraText="Invalid or expired token. Please request a new link."
+  //         className="text-sm font-medium text-[#072F5F] text-center w-9/12 md:w-1/4"
+  //       />
+  //       <Link href="/forgot-password">
+  //         <button
+  //           type="submit"
+  //           className="bg-[#072F5F] cursor-pointer hover:bg-teal text-white text-sm font-bold py-3 mt-5 w-full px-4 rounded-full focus:outline-none"
+  //         >
+  //           <div className="flex flex-row justify-center items-center gap-2">
+  //             Forgot Password <FiArrowRight className="font-medium text-lg" />
+  //           </div>
+  //         </button>
+  //       </Link>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="flex flex-col items-center justify-center h-full mt-8">
@@ -216,7 +187,7 @@ const page = () => {
           type="submit"
           className={`${
             isLoadingSubmit
-              ? "bg-blue hover:bg-indigo cursor-not-allowed loading"
+              ? "bg-gray-600 hover:bg-indigo cursor-not-allowed loading"
               : "bg-[#072F5F] cursor-pointer hover:bg-teal"
           } text-white text-sm font-bold py-3 mt-5 w-full px-4 rounded-full focus:outline-none`}
           disabled={isLoadingSubmit}
