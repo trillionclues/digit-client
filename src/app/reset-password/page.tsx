@@ -3,12 +3,11 @@ import React, { useEffect, useState } from "react";
 import { FiArrowRight } from "react-icons/fi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import Link from "next/link";
 import { z } from "zod";
 import LogoHeader from "@/components/reusables/LogoHeader";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import { changePassword } from "@/redux/features/forgotPasswordSlice";
-import { TokenProps } from "@/types/TokenProps";
+// import { TokenProps } from "@/types/TokenProps";
 
 const page = () => {
   const forgotPasswordState = useSelector(
@@ -16,7 +15,7 @@ const page = () => {
   );
   const { submitting, error, newUserPassword } = forgotPasswordState;
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(submitting);
-  const [isValidToken, setIsValidToken] = useState(false);
+  // const [isValidToken, setIsValidToken] = useState(false);
   const [formError, setFormError] = useState<string | null>(error);
   const [newPassword, setNewPassword] = useState<string>("");
   const dispatch = useDispatch<AppDispatch>();
@@ -42,7 +41,7 @@ const page = () => {
 
     try {
       const dataToValidate = { password: newPassword };
-      console.log("Data to Validate:", dataToValidate);
+      // console.log("Data to Validate:", dataToValidate);
       validationSchema.parse(dataToValidate);
       if (token) {
         const resultAction = await dispatch(
@@ -57,7 +56,7 @@ const page = () => {
         throw Error("Invalid URL parameters");
       }
     } catch (error) {
-      console.log("Failed to change password", error);
+      // console.log("Failed to change password", error);
       if (error instanceof z.ZodError) {
         setFormError(error.issues[0].message);
       }

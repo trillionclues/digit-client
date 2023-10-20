@@ -47,7 +47,7 @@ const authSlice = createSlice({
       state.token = action.payload;
     });
     builder.addCase(authAsync.rejected, (state, action) => {
-      console.log(action);
+      // console.log(action);
       state.isLoading = false;
     });
   },

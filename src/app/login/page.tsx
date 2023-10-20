@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { authAsync } from "@/redux/features/authSlice";
 import { handleLogin, iLogin } from "./login.service";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import AuthForm from "@/components/reusables/authForm";
+// import AuthForm from "@/components/reusables/authForm";
 import { z } from "zod";
 import LogoHeader from "@/components/reusables/LogoHeader";
 
@@ -79,7 +79,7 @@ const Login = () => {
         throw new Error(response.message);
       }
     } catch (error) {
-      console.log("Login failed", error);
+      // console.log("Login failed", error);
       if (error instanceof z.ZodError) {
         setFormErrors({
           email:

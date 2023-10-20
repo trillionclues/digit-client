@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import { baseUrl } from "@/constants/dbUrl";
 
@@ -27,7 +26,6 @@ export const sendForgotPasswordToken = createAsyncThunk(
           email,
         }
       );
-      console.log(response);
       return response.data; // confirmation
     } catch (error) {
       throw new Error("Failed to send password reset token!");
@@ -42,7 +40,6 @@ export const changePassword = createAsyncThunk(
     try {
       const urlSearchParams = new URLSearchParams(window.location.search);
       const token = urlSearchParams.get("token");
-      console.log(token);
       const response = await axios.put(
         `${baseUrl}/api/user/reset-password/${token}`,
         {
@@ -57,7 +54,7 @@ export const changePassword = createAsyncThunk(
 
       return response.data; //confirm
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       throw new Error("Failed to change password!");
     }
   }

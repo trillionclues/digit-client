@@ -1,5 +1,4 @@
 // [token].tsx
-import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 const ResetPasswordPage = () => {

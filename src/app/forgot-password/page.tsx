@@ -6,7 +6,6 @@ import { AppDispatch, RootState } from "@/redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import { FiArrowRight } from "react-icons/fi";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
 
@@ -15,13 +14,11 @@ const page = () => {
     (state: RootState) => state.forgotPassword
   );
   const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
   const { submitting, error, emailSent } = forgotPasswordState;
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(submitting);
 
   const [formError, setFormError] = useState<string | null>(error);
   const [userEmail, setUserEmail] = useState<string>("");
-  const [userTyping, setUserTyping] = useState(false);
 
   const validationSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -48,7 +45,7 @@ const page = () => {
         // router.push("/change-password");
       }
     } catch (error) {
-      console.log("Failed to send reset token", error);
+      // console.log("Failed to send reset token", error);
       if (error instanceof z.ZodError) {
         setFormError(error.issues[0].message);
       }
