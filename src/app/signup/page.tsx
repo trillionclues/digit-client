@@ -5,13 +5,85 @@ import { FiArrowRight } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store/store";
+import { z } from "zod";
+import { useRouter } from "next/navigation";
+import { SignUpSlice } from "@/redux/features/authSlice";
 
 const SignupPage = () => {
+  const userAuth = useSelector((state: RootState) => state.authentication);
+  const { isLoading, user, error } = userAuth;
+  const [isSignupUser, setIsSignupUser] = useState(isLoading);
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [formError, setFormError] = useState<string | null>(error);
+  const [userForm, setUserForm] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    mobile: "",
+    password: "",
+  });
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+
+  // new user validation
+  const validationSchema = z.object({
+    firstname: z
+      .string()
+      .min(2, { message: "First name must be at least 2 characters" }),
+    lastname: z
+      .string()
+      .min(2, { message: "Last name must be at least 2 characters" }),
+    email: z.string().email("Invalid email address"),
+    mobile: z
+      .string()
+      .min(10, { message: "Phone number must be at least 10 characters" }),
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters" }),
+  });
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
+  };
+
+  const handleCreateNewUser = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormError(null);
+
+    try {
+      setIsSignupUser(true);
+      // construct user data
+      const newUserData = {
+        firstname: userForm?.email,
+        lastname: userForm?.lastname,
+        email: userForm?.email,
+        mobile: userForm?.mobile,
+        password: userForm?.password,
+      };
+      await validationSchema.parseAsync(userForm);
+      const resultAction = await dispatch(SignUpSlice(newUserData));
+      // error creatig user
+      if (!resultAction || !resultAction.payload) {
+        throw Error("Failed to create a new User");
+      }
+
+      if (SignUpSlice.fulfilled.match(resultAction)) {
+        console.log("Successfully created the user");
+        // localStorage.setItem("isAuthenticated", "true");
+        router.push("/");
+      } else {
+        throw Error("Failed to create a new User");
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setFormError(error.issues[0].message);
+      }
+      setIsSignupUser(false);
+    } finally {
+      setIsSignupUser(false);
+    }
   };
 
   return (
@@ -23,9 +95,9 @@ const SignupPage = () => {
       />
       <form
         method="POST"
+        onSubmit={handleCreateNewUser}
         className="w-full max-w-sm md:max-w-2xl mt-8 bg-white rounded px-6 pt-6 pb-8 mb-4 shadow-md"
       >
-        {/* // onSubmit={} */}
         {/* First Name and Last Name */}
         <div className="flex flex-col md:flex-row justify-between items-start">
           <div className="w-full md:w-1/2 pr-2">
@@ -35,16 +107,14 @@ const SignupPage = () => {
             >
               First Name
             </label>
-            <div className="text-red-500 text-sm py-2">
-              {/* {formErrors.firstname} */}
-            </div>
+            <div className="text-red-500 text-sm py-2">{formError}</div>
             <input
               type="text"
               name="firstname"
               className="border text-sm border-grey-light w-full p-3 rounded-full mb-4"
               placeholder="Enter your email"
-              // value={formData?.firstname}
-              // onChange={handleChange}
+              value={userForm?.firstname}
+              onChange={(e) => e.target.value}
               required
             />
           </div>
@@ -55,16 +125,14 @@ const SignupPage = () => {
             >
               Last Name
             </label>
-            <div className="text-red-500 text-sm py-2">
-              {/* {formErrors.lastname} */}
-            </div>
+            <div className="text-red-500 text-sm py-2">{formError}</div>
             <input
               type="text"
               name="lastname"
               className="border text-sm border-grey-light w-full p-3 rounded-full mb-4"
               placeholder="Enter your last name"
-              // value={formData?.lastname}
-              // onChange={handleChange}
+              value={userForm?.lastname}
+              onChange={(e) => e.target.value}
               required
             />
           </div>
@@ -84,8 +152,8 @@ const SignupPage = () => {
                 name="email"
                 className="border text-sm border-grey-light w-full p-3 rounded-full mb-4"
                 placeholder="Enter your email"
-                // value={formData?.email}
-                // onChange={handleChange}
+                value={userForm?.email}
+                onChange={(e) => e.target.value}
                 required
               />
             </div>
@@ -98,16 +166,14 @@ const SignupPage = () => {
             >
               Phone Number
             </label>
-            <div className="text-red-500 text-sm py-2">
-              {/* {formErrors.mobile} */}
-            </div>
+            <div className="text-red-500 text-sm py-2">{formError}</div>
             <input
               type="text"
               name="mobile"
               className="border text-sm border-grey-light w-full p-3 rounded-full mb-4"
               placeholder="Enter your phone number"
-              // value={formData?.mobile}
-              // onChange={handleChange}
+              value={userForm?.mobile}
+              onChange={(e) => e.target.value}
               required
             />
           </div>
@@ -120,16 +186,14 @@ const SignupPage = () => {
           >
             Password
           </label>
-          <div className="text-red-500 text-sm py-2">
-            {/* {formErrors.password} */}
-          </div>
+          <div className="text-red-500 text-sm py-2">{formError}</div>
           <input
             type={passwordVisible ? "text" : "password"}
             name="password"
             className="border text-sm border-grey-light w-full p-3 rounded-full pr-12"
             placeholder="Enter your password"
-            // value={formData?.password}
-            // onChange={handleChange}
+            value={userForm?.password}
+            onChange={(e) => e.target.value}
             required
           />
           <div className="relative">
@@ -150,13 +214,13 @@ const SignupPage = () => {
         <button
           type="submit"
           className={`${
-            isSignUp
+            isSignupUser
               ? "bg-blue hover:bg-indigo cursor-not-allowed loading"
               : "bg-[#072F5F] cursor-pointer hover:bg-teal"
           } text-white text-sm font-bold py-3 w-full px-4 rounded-full focus:outline-none`}
-          disabled={isSignUp}
+          disabled={isSignupUser}
         >
-          {isSignUp ? (
+          {isSignupUser ? (
             <div className="spinner mx-auto"></div>
           ) : (
             <div className="flex flex-row justify-center items-center gap-2">

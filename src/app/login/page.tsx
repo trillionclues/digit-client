@@ -27,9 +27,41 @@ const Login = () => {
   let token: string;
 
   const validationSchema = z.object({
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    email: z.string().email("Invalid email address").or(z.string().refine((email) => isCorrectEmail(email), {
+      message: "Incorrect email or password",
+    })),
+    password: z.string().min(6, "Password must be at least 6 characters").refine((password) => isCorrectPassword(password), {
+      message: "Incorrect email or password",
+    } ),
   });
+
+  // helper function to check correct email
+  const isCorrectEmail = (email:string) => {
+    if (email === "") {
+      return false;
+    }
+
+    // Check if the email address is in a valid format.
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if (!re.test(email)) {
+    return false;
+  }
+  }
+  
+
+
+
+    // helper function to check correct password
+  const isCorrectPassword = (password: string) => {
+    if (password === "") {
+      return false;
+    }
+  
+    // Check if the password is at least 6 characters long.
+    if (password.length < 6) {
+      return false;
+    }
+  }
 
   // handle onchange
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
