@@ -3,6 +3,11 @@ import axios from "axios";
 import { baseUrl } from "@/constants/dbUrl";
 import { NewUserType } from "@/types/NewUserType";
 import { handleLogin, iLogin } from "@/app/login/login.service";
+import {
+  setAuthToken,
+  removeAuthToken,
+  getAuthToken,
+} from "../../../utils/authUtills";
 
 interface AuthAction {
   token: string | null;
@@ -57,6 +62,7 @@ const authSlice = createSlice({
     updateUserAuthStatus: (state, action: PayloadAction<any>) => {
       state.isAuthenticated = action.payload.isAuthenticated;
       state.token = action.payload.token;
+      setAuthToken(action.payload.token);
     },
     updateToken: (state, action: PayloadAction<string | null>) => {
       state.token = action.payload;
@@ -69,7 +75,7 @@ const authSlice = createSlice({
     });
     builder.addCase(LoginSlice.fulfilled, (state, action) => {
       state.isLoading = false;
-      state.token = action.payload;
+      setAuthToken(action.payload.token);
     });
     builder.addCase(LoginSlice.rejected, (state, action) => {
       // console.log(action);
@@ -85,7 +91,7 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.isAuthenticated = true;
       state.error = null;
-      authSlice.caseReducers.updateToken(state, action.payload.token);
+      setAuthToken(action.payload.token);
     });
     builder.addCase(SignUpSlice.rejected, (state, action) => {
       state.isLoading = false;

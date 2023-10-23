@@ -11,8 +11,9 @@ import { AppDispatch, RootState } from "@/redux/store/store";
 import { z } from "zod";
 import LogoHeader from "@/components/reusables/LogoHeader";
 import { toast } from "react-toastify";
+import { getAuthToken } from "../../../utils/authUtills";
 
-export const Login = () => {
+const Login = () => {
   const isLoading = useSelector(
     (state: RootState) => state.authentication.isLoading
   );
@@ -23,10 +24,6 @@ export const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-
-  // check user auth
-  // const withServerProps = useAuth()
-  // const { isAuthenticated, token } = withServerProps
 
   const validationSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -66,10 +63,6 @@ export const Login = () => {
       setIsLoadingUser(true);
       validationSchema.parse(formData);
       const response = await handleLogin(data);
-      // dispatch token to redux store
-      // dispatch(setToken(response.token));
-      // dispatch(setUser(response));
-      // setCookie(res, "token", response.token);
 
       toast.success("Welcome back!", {
         position: "top-right",
@@ -100,6 +93,14 @@ export const Login = () => {
       setFormData({ email: storedEmail, password: storedPassword });
     }
   }, [rememberMe]);
+
+  // Handle redirection if the user is already authenticated
+  useEffect(() => {
+    const token = getAuthToken();
+    if (token) {
+      router.push("/dashboard");
+    }
+  }, [router]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full mt-8">

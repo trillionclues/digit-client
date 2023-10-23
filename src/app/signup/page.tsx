@@ -12,10 +12,9 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import authSlice, {
   SignUpSlice,
-  updateToken,
   updateUserAuthStatus,
 } from "@/redux/features/authSlice";
-import { loadStateFromLocalStorage } from "@/middlware/localStorageMiddleware";
+import { getAuthToken } from "../../../utils/authUtills";
 
 const SignupPage = () => {
   const userAuth = useSelector((state: RootState) => state.authentication);
@@ -135,12 +134,12 @@ const SignupPage = () => {
       setIsSignupUser(false);
     }
   };
-
   useEffect(() => {
-    if (userAuth.isAuthenticated) {
+    const token = getAuthToken();
+    if (token) {
       router.push("/dashboard");
     }
-  }, [userAuth.isAuthenticated]);
+  }, [router]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full mt-8">
