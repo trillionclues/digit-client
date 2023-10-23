@@ -4,22 +4,19 @@ import { baseUrl } from "@/constants/dbUrl";
 export interface iLogin {
   email: string;
   password: string;
+  token?: string;
 }
 
-export const handleLogin = async (
-  detail: iLogin,
-  token: string
-  //   id: string
-) => {
+export const handleLogin = async (data: iLogin) => {
   // handle login action with axios
   try {
     const response = await axios.post(
       `${baseUrl}/api/user/login`,
-      detail, // email and password from req.body
+      data, // email and password from req.body
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // token from headers
+          Authorization: `Bearer ${data.token}`, // token from headers
         },
       }
     );

@@ -6,14 +6,19 @@ import { FiArrowRight } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { authAsync } from "@/redux/features/authSlice";
 import { handleLogin, iLogin } from "./login.service";
 import { AppDispatch, RootState } from "@/redux/store/store";
-// import AuthForm from "@/components/reusables/authForm";
 import { z } from "zod";
 import LogoHeader from "@/components/reusables/LogoHeader";
+import { toast } from "react-toastify";
+import { useAuthRedirect } from "../../../utils/auth";
+import { setToken } from "@/redux/features/authSlice";
 
 const Login = () => {
+  // if user is authenticated
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.authentication.token !== null
+  );
   const isLoading = useSelector(
     (state: RootState) => state.authentication.isLoading
   );
@@ -24,45 +29,11 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  let token: string;
 
   const validationSchema = z.object({
-    email: z.string().email("Invalid email address").or(z.string().refine((email) => isCorrectEmail(email), {
-      message: "Incorrect email or password",
-    })),
-    password: z.string().min(6, "Password must be at least 6 characters").refine((password) => isCorrectPassword(password), {
-      message: "Incorrect email or password",
-    } ),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
   });
-
-  // helper function to check correct email
-  const isCorrectEmail = (email:string) => {
-    if (email === "") {
-      return false;
-    }
-
-    // Check if the email address is in a valid format.
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  if (!re.test(email)) {
-    return false;
-  }
-  }
-  
-
-
-
-    // helper function to check correct password
-  const isCorrectPassword = (password: string) => {
-    if (password === "") {
-      return false;
-    }
-  
-    // Check if the password is at least 6 characters long.
-    if (password.length < 6) {
-      return false;
-    }
-  }
-
   // handle onchange
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -84,12 +55,8 @@ const Login = () => {
     const data: iLogin = {
       email: formData?.email || "",
       password: formData?.password || "",
+      // token: token,
     };
-
-    // if (!data.email || !data.password) {
-    //   alert("Please enter all fields");
-    //   return;
-    // }
 
     // set remember me data
     if (rememberMe) {
@@ -100,18 +67,16 @@ const Login = () => {
     try {
       setIsLoadingUser(true);
       validationSchema.parse(formData);
-      const response = await handleLogin(data, token);
-      const resultAction = await dispatch(authAsync(response.token));
+      const response = await handleLogin(data);
+      // dispatch token to redux store
+      dispatch(setToken(response.token));
 
-      if (authAsync.fulfilled.match(resultAction)) {
-        const token = resultAction.payload;
-        localStorage.setItem("token", token);
-        router.push("/");
-      } else {
-        throw new Error(response.message);
-      }
+      toast.success("Welcome back!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      router.push("/");
     } catch (error) {
-      // console.log("Login failed", error);
       if (error instanceof z.ZodError) {
         setFormErrors({
           email:
@@ -126,6 +91,9 @@ const Login = () => {
       setIsLoadingUser(false);
     }
   };
+
+  // handle auth redirection
+  useAuthRedirect(router, isAuthenticated, true);
 
   useEffect(() => {
     const storedEmail = localStorage.getItem("rememberedEmail");

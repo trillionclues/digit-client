@@ -7,16 +7,24 @@ import Link from "next/link";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store/store";
+import { toast } from "react-toastify";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { SignUpSlice } from "@/redux/features/authSlice";
+import { SignUpSlice, updateUser } from "@/redux/features/authSlice";
 
 const SignupPage = () => {
   const userAuth = useSelector((state: RootState) => state.authentication);
   const { isLoading, user, error } = userAuth;
   const [isSignupUser, setIsSignupUser] = useState(isLoading);
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [formError, setFormError] = useState<string | null>(error);
+  const [formErrors, setFormErrors] = useState({
+    firstname: null,
+    lastname: null,
+    email: null,
+    mobile: null,
+    password: null,
+  });
+  // const [newUser, setNewUser] = useState(user);
   const [userForm, setUserForm] = useState({
     firstname: "",
     lastname: "",
@@ -48,9 +56,21 @@ const SignupPage = () => {
     setPasswordVisible(!passwordVisible);
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!validationSchema.parseAsync) return;
+    const { name, value } = e.target;
+    setUserForm({ ...userForm, [name]: value });
+  };
+
   const handleCreateNewUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFormError(null);
+    setFormErrors({
+      firstname: null,
+      lastname: null,
+      email: null,
+      mobile: null,
+      password: null,
+    });
 
     try {
       setIsSignupUser(true);
@@ -70,7 +90,11 @@ const SignupPage = () => {
       }
 
       if (SignUpSlice.fulfilled.match(resultAction)) {
-        console.log("Successfully created the user");
+        // dispatch(updateUser(resultAction.payload));
+        toast.success("Account created successfully!", {
+          position: "top-right",
+          autoClose: 2000,
+        });
         // localStorage.setItem("isAuthenticated", "true");
         router.push("/");
       } else {
@@ -78,7 +102,12 @@ const SignupPage = () => {
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        setFormError(error.issues[0].message);
+        error.issues.forEach((issue) => {
+          setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            [issue.path[0]]: issue.message,
+          }));
+        });
       }
       setIsSignupUser(false);
     } finally {
@@ -107,14 +136,16 @@ const SignupPage = () => {
             >
               First Name
             </label>
-            <div className="text-red-500 text-sm py-2">{formError}</div>
+            <div className="text-red-500 text-sm py-2">
+              {formErrors.firstname}
+            </div>
             <input
               type="text"
               name="firstname"
               className="border text-sm border-grey-light w-full p-3 rounded-full mb-4"
               placeholder="Enter your email"
               value={userForm?.firstname}
-              onChange={(e) => e.target.value}
+              onChange={handleChange}
               required
             />
           </div>
@@ -125,14 +156,16 @@ const SignupPage = () => {
             >
               Last Name
             </label>
-            <div className="text-red-500 text-sm py-2">{formError}</div>
+            <div className="text-red-500 text-sm py-2">
+              {formErrors.lastname}
+            </div>
             <input
               type="text"
               name="lastname"
               className="border text-sm border-grey-light w-full p-3 rounded-full mb-4"
               placeholder="Enter your last name"
               value={userForm?.lastname}
-              onChange={(e) => e.target.value}
+              onChange={handleChange}
               required
             />
           </div>
@@ -153,7 +186,7 @@ const SignupPage = () => {
                 className="border text-sm border-grey-light w-full p-3 rounded-full mb-4"
                 placeholder="Enter your email"
                 value={userForm?.email}
-                onChange={(e) => e.target.value}
+                onChange={handleChange}
                 required
               />
             </div>
@@ -166,14 +199,14 @@ const SignupPage = () => {
             >
               Phone Number
             </label>
-            <div className="text-red-500 text-sm py-2">{formError}</div>
+            <div className="text-red-500 text-sm py-2">{formErrors.mobile}</div>
             <input
               type="text"
               name="mobile"
               className="border text-sm border-grey-light w-full p-3 rounded-full mb-4"
               placeholder="Enter your phone number"
               value={userForm?.mobile}
-              onChange={(e) => e.target.value}
+              onChange={handleChange}
               required
             />
           </div>
@@ -186,14 +219,14 @@ const SignupPage = () => {
           >
             Password
           </label>
-          <div className="text-red-500 text-sm py-2">{formError}</div>
+          <div className="text-red-500 text-sm py-2">{formErrors.password}</div>
           <input
             type={passwordVisible ? "text" : "password"}
             name="password"
             className="border text-sm border-grey-light w-full p-3 rounded-full pr-12"
             placeholder="Enter your password"
             value={userForm?.password}
-            onChange={(e) => e.target.value}
+            onChange={handleChange}
             required
           />
           <div className="relative">

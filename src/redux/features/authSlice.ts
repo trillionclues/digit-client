@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { baseUrl } from "@/constants/dbUrl";
 import { NewUserType } from "@/types/NewUserType";
+import { handleLogin, iLogin } from "@/app/login/login.service";
 
 interface AuthAction {
   token: string | null;
@@ -17,14 +18,15 @@ const initialState: AuthAction = {
   error: false,
 };
 
-export const authAsync = createAsyncThunk(
-  "auth",
-  async (token: string, thunkAPI) => {
+export const LoginSlice = createAsyncThunk(
+  "auth/login",
+  async (credentials: iLogin, { dispatch }) => {
     try {
-      // console.log("login");
-      return token;
-    } catch (error) {
-      return thunkAPI.rejectWithValue("Something went wrong");
+      const response = await handleLogin(credentials);
+      dispatch(setToken(response.token));
+      return response.token;
+    } catch (error: any) {
+      return error.message;
     }
   }
 );
@@ -50,25 +52,29 @@ const authSlice = createSlice({
   name: "authentication",
   initialState,
   reducers: {
-    login: (state, action: PayloadAction<string>) => {
+    setToken: (state, action: PayloadAction<any>) => {
       state.token = action.payload;
-    },
-    logout: (state) => {
-      (state.token = null), (state.user = null);
     },
     setUser: (state, action: PayloadAction<any>) => {
       state.user = action.payload;
     },
+    clearAuth: (state) => {
+      state.token = null;
+      state.user = null;
+    },
+    updateUser: (state, action: PayloadAction<any>) => {
+      state.user = action.payload;
+    },
   },
   extraReducers: (builder) => {
-    builder.addCase(authAsync.pending, (state) => {
+    builder.addCase(LoginSlice.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(authAsync.fulfilled, (state, action) => {
+    builder.addCase(LoginSlice.fulfilled, (state, action) => {
       state.isLoading = false;
       state.token = action.payload;
     });
-    builder.addCase(authAsync.rejected, (state, action) => {
+    builder.addCase(LoginSlice.rejected, (state, action) => {
       // console.log(action);
       state.isLoading = false;
     });
@@ -87,5 +93,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { login, logout, setUser } = authSlice.actions;
+export const { setToken, clearAuth, setUser, updateUser } = authSlice.actions;
 export default authSlice.reducer;
