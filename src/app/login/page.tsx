@@ -11,14 +11,12 @@ import { AppDispatch, RootState } from "@/redux/store/store";
 import { z } from "zod";
 import LogoHeader from "@/components/reusables/LogoHeader";
 import { toast } from "react-toastify";
-import { useAuthRedirect } from "../../../utils/auth";
 import { setToken } from "@/redux/features/authSlice";
+import { NextPage } from "next";
 
-const Login = () => {
-  // if user is authenticated
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.authentication.token !== null
-  );
+export const Login: NextPage = () => {
+  const token = useSelector((state: RootState) => state.authentication.token);
+  console.log(token);
   const isLoading = useSelector(
     (state: RootState) => state.authentication.isLoading
   );
@@ -91,9 +89,6 @@ const Login = () => {
       setIsLoadingUser(false);
     }
   };
-
-  // handle auth redirection
-  useAuthRedirect(router, isAuthenticated, true);
 
   useEffect(() => {
     const storedEmail = localStorage.getItem("rememberedEmail");
