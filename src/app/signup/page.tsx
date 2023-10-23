@@ -10,11 +10,16 @@ import { AppDispatch, RootState } from "@/redux/store/store";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { SignUpSlice, updateUser } from "@/redux/features/authSlice";
+import authSlice, {
+  SignUpSlice,
+  updateToken,
+  updateUserAuthStatus,
+} from "@/redux/features/authSlice";
+import { loadStateFromLocalStorage } from "@/middlware/localStorageMiddleware";
 
 const SignupPage = () => {
   const userAuth = useSelector((state: RootState) => state.authentication);
-  const { isLoading, user, error } = userAuth;
+  const { isLoading, user, error, token, isAuthenticated } = userAuth;
   const [isSignupUser, setIsSignupUser] = useState(isLoading);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [formErrors, setFormErrors] = useState({
@@ -34,6 +39,10 @@ const SignupPage = () => {
   });
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+
+  if (!isAuthenticated) {
+    router.push("/login");
+  }
 
   // new user validation
   const validationSchema = z.object({
@@ -62,8 +71,7 @@ const SignupPage = () => {
     setUserForm({ ...userForm, [name]: value });
   };
 
-  const handleCreateNewUser = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const clearFormErrors = () => {
     setFormErrors({
       firstname: null,
       lastname: null,
@@ -71,6 +79,17 @@ const SignupPage = () => {
       mobile: null,
       password: null,
     });
+  };
+
+  const handleCreateNewUser = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    clearFormErrors();
+    dispatch(
+      updateUserAuthStatus({
+        isAuthenticated: true,
+        token,
+      })
+    );
 
     try {
       setIsSignupUser(true);
@@ -82,23 +101,24 @@ const SignupPage = () => {
         mobile: userForm?.mobile,
         password: userForm?.password,
       };
+
       await validationSchema.parseAsync(userForm);
       const resultAction = await dispatch(SignUpSlice(newUserData));
+
       // error creatig user
       if (!resultAction || !resultAction.payload) {
         throw Error("Failed to create a new User");
       }
 
       if (SignUpSlice.fulfilled.match(resultAction)) {
-        // dispatch(updateUser(resultAction.payload));
         toast.success("Account created successfully!", {
           position: "top-right",
           autoClose: 2000,
         });
-        // localStorage.setItem("isAuthenticated", "true");
-        router.push("/");
-      } else {
-        throw Error("Failed to create a new User");
+        router.push("/login");
+      } else if (SignUpSlice.rejected.match(resultAction)) {
+        const error = resultAction.payload;
+        console.error("Sign-up failed:", error);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -109,11 +129,18 @@ const SignupPage = () => {
           }));
         });
       }
+      console.error("An error occurred during sign-up:", error);
       setIsSignupUser(false);
     } finally {
       setIsSignupUser(false);
     }
   };
+
+  useEffect(() => {
+    if (userAuth.isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [userAuth.isAuthenticated]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full mt-8">

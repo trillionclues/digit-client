@@ -11,12 +11,8 @@ import { AppDispatch, RootState } from "@/redux/store/store";
 import { z } from "zod";
 import LogoHeader from "@/components/reusables/LogoHeader";
 import { toast } from "react-toastify";
-import { setToken } from "@/redux/features/authSlice";
-import { NextPage } from "next";
 
-export const Login: NextPage = () => {
-  const token = useSelector((state: RootState) => state.authentication.token);
-  console.log(token);
+export const Login = () => {
   const isLoading = useSelector(
     (state: RootState) => state.authentication.isLoading
   );
@@ -27,6 +23,10 @@ export const Login: NextPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+
+  // check user auth
+  // const withServerProps = useAuth()
+  // const { isAuthenticated, token } = withServerProps
 
   const validationSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -67,13 +67,15 @@ export const Login: NextPage = () => {
       validationSchema.parse(formData);
       const response = await handleLogin(data);
       // dispatch token to redux store
-      dispatch(setToken(response.token));
+      // dispatch(setToken(response.token));
+      // dispatch(setUser(response));
+      // setCookie(res, "token", response.token);
 
       toast.success("Welcome back!", {
         position: "top-right",
         autoClose: 2000,
       });
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       if (error instanceof z.ZodError) {
         setFormErrors({

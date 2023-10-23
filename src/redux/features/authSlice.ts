@@ -8,6 +8,7 @@ interface AuthAction {
   token: string | null;
   user: any;
   isLoading: boolean;
+  isAuthenticated: boolean;
   error: any | { message: string; statusCode?: number };
 }
 
@@ -16,6 +17,7 @@ const initialState: AuthAction = {
   user: null,
   isLoading: false,
   error: false,
+  isAuthenticated: false,
 };
 
 export const LoginSlice = createAsyncThunk(
@@ -23,7 +25,7 @@ export const LoginSlice = createAsyncThunk(
   async (credentials: iLogin, { dispatch }) => {
     try {
       const response = await handleLogin(credentials);
-      dispatch(setToken(response.token));
+      // dispatch(setToken(response.token));
       return response.token;
     } catch (error: any) {
       return error.message;
@@ -52,20 +54,12 @@ const authSlice = createSlice({
   name: "authentication",
   initialState,
   reducers: {
-    setToken: (state, action: PayloadAction<any>) => {
-      // set token
-      localStorage.setItem("token", JSON.stringify(action.payload));
+    updateUserAuthStatus: (state, action: PayloadAction<any>) => {
+      state.isAuthenticated = action.payload.isAuthenticated;
+      state.token = action.payload.token;
+    },
+    updateToken: (state, action: PayloadAction<string | null>) => {
       state.token = action.payload;
-    },
-    setUser: (state, action: PayloadAction<any>) => {
-      state.user = action.payload;
-    },
-    clearAuth: (state) => {
-      state.token = null;
-      state.user = null;
-    },
-    updateUser: (state, action: PayloadAction<any>) => {
-      state.user = action.payload;
     },
   },
 
@@ -83,18 +77,26 @@ const authSlice = createSlice({
     });
     builder.addCase(SignUpSlice.pending, (state) => {
       state.isLoading = true;
+      state.error = null;
     });
     builder.addCase(SignUpSlice.fulfilled, (state, action) => {
       state.isLoading = false;
-      state.user = action.payload;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.isAuthenticated = true;
+      state.error = null;
+      authSlice.caseReducers.updateToken(state, action.payload.token);
     });
     builder.addCase(SignUpSlice.rejected, (state, action) => {
       state.isLoading = false;
-      state.error =
-        typeof action.error === "object" ? action.error?.message : "";
+      state.token = null;
+      state.user = null;
+      state.isAuthenticated = false;
+      state.error = action.payload || { message: "Sign-up failed" };
     });
   },
 });
 
-export const { setToken, clearAuth, setUser, updateUser } = authSlice.actions;
+// export actions
+export const { updateUserAuthStatus, updateToken } = authSlice.actions;
 export default authSlice.reducer;
