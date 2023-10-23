@@ -68,6 +68,7 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
   },
+
   extraReducers: (builder) => {
     builder.addCase(LoginSlice.pending, (state) => {
       state.isLoading = true;
