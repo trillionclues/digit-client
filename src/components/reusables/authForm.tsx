@@ -3,7 +3,6 @@ import { FormConfigProps } from "@/types/FormConfigProps";
 import { formConfig } from "../../../utils/formConfig";
 import { BsEye, BsEyeSlash } from "react-icons/bs";
 import { FiArrowRight } from "react-icons/fi";
-import { authAsync } from "@/redux/features/authSlice";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
